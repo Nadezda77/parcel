@@ -1,44 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 import { Form, Button, Container, Table, InputGroup, Dropdown } from 'react-bootstrap';
-import { useForm, SubmitHandler, Resolver, FieldValues } from "react-hook-form";
+//import { useForm, SubmitHandler, Resolver, FieldValues } from "react-hook-form";
 import axios from 'axios';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { getUser, getToken, removeUserSession, setUserSession } from '../utils/Common';
-
-import { useCSVReader, formatFileSize } from "react-papaparse";
-import fs from 'fs';
-import Papa from 'papaparse';
+//import { CSVLink } from 'react-csv';
 
 
-import { CSVLink } from 'react-csv';
+
+interface Device {
+  EUI: string;
+  name: string;
+  nwAddress: string;
+  // add more fields if needed from your device API response
+}
 
 const ExportCSV = () => {
-  const fileName = "users-detail";
-  const [userData, setUserData] = useState([]);
+  const fileName = "users-detail.csv";
+  const [deviceData, setDeviceData] = useState<Device[]>([]);
   const [loading, setLoading] = useState(false);
 
   const headers = [
-      { label: "Id", key: "id" },
-      { label: "Name", key: "name" },
-      { label: "Email", key: "email" },
-      { label: "Phone", key: "phone" }
+    { label: "EUI", key: "EUI" },
+    { label: "Name", key: "name" },
+    { label: "IP Address", key: "nwAddress" },
   ];
 
-   const history = useNavigate();
+   const navigate = useNavigate();
+
    // Logout handler
     function handleLogout() {
      removeUserSession();
-      history('/login');
+      navigate('/login');
     }
 
 useEffect(() => {
-getUserData();
+ fetchDeviceData();
   }, []);
 
-  const getUserData = () => {
+  const fetchDeviceData = () => {
       setLoading(true);
       const token = getToken();
       
@@ -46,13 +49,13 @@ getUserData();
       {
         headers: {
         Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
-      },
-          withCredentials: false,
-      }
+      }}
       )
           .then((res) => {
-              setUserData(res.data);
+             const devices = res.data.briefs || [];
+              setDeviceData(res.data);
               setLoading(false);
           })
           .catch((err) => {
@@ -63,20 +66,19 @@ getUserData();
 
   return (
       <Container>
-         <Button onClick={handleLogout}>Logout</Button><br /><br />
+         <Button variant="secondary" onClick={handleLogout} className="mb-3">Logout</Button><br /><br />
           <Button
-              variant="contained"
-              color="primary"
-              className='export-btn'
+              variant="primary"
+             disabled={loading}
           >
-              <CSVLink
+              {/* <CSVLink
                   headers={headers}
-                  data={userData}
+                  data={deviceData}
                   filename={fileName}
                   style={{ "textDecoration": "none", "color": "#fff" }}
               >
                   {loading ? 'Loading csv...' : 'Export Data'}
-              </CSVLink>
+              </CSVLink> */}
           </Button>
 
         {/* <Table headers={headers} userData={userData} /> */}

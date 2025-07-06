@@ -41,15 +41,5 @@ export const removeUserSession = () => {
     
       }
 
-  // export const setDevice = (
-
-  //   href: string,
-  //   name: string,
-  //   ID: string,
-  // ): void => {
-  //   sessionStorage.setItem('href', href.toString());
-  //   sessionStorage.setItem('name', name.toString());
-  //   sessionStorage.setItem('ID',ID.toString());
-  // }
 
   

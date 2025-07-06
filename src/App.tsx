@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js'
 
-
-import {BrowserRouter , Route, Routes, NavLink} from 'react-router';
+import Navbar from './components/Navbar'
+import {BrowserRouter , Route, Routes, NavLink, } from 'react-router-dom';
 import Home from "./pages/Home";
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NewDevice from './pages/NewDevice';
 import NotFound from './pages/NotFound';
 import ExportCSV from './pages/DownloadData';
+import DeviceDetail from './pages/DeviceDetail';
 
 
 import PrivateRoutes from './utils/PrivateRoute';
@@ -45,21 +46,8 @@ function App() {
  
   return (
     <BrowserRouter>
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
-          <NavLink to="/" className={({ isActive }) => isActive ? 'active' : ''}>Home</NavLink>
-          <NavLink to="/login" className={({ isActive }) => isActive ? 'active' : ''}>
-              Login <small>(Access without token )</small>
-            </NavLink>
-            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'active' : ''}>
-              Dashboard <small>(Access with token )</small>
-            </NavLink>
-            <NavLink to="/new_device" className={({ isActive }) => isActive ? 'active' : ''}>
-              New device <small>(Access with token)</small>
-            </NavLink>
-            <NavLink to="/export_csv" className={({ isActive }) => isActive ? 'active' : ''}>
-              Download data <small>(Access with token)</small>
-            </NavLink>
-            </nav>  
+      <Navbar />
+        <div className="container mt-4">
           <Routes>
             <Route path="*" element={<NotFound />} />
             <Route index element={<Home />} />
@@ -70,11 +58,12 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} /> 
               <Route path="/new_device" element={<NewDevice />} />
               <Route path="/export_csv" element={<ExportCSV />} />
+              <Route path="/device/:deviceEUI" element={<DeviceDetail />} />
            </Route>
 
 
           </Routes>
-      
+</div>
           </BrowserRouter>
   );
 }

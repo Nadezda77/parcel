@@ -5,7 +5,7 @@
 const Home = () => {
   return (
     <div>
-     Dobrodošli na stranicu za kreiranje IoT korisnika
+     Dobrodošli na stranicu za IoT servise
     </div>
   );
 }

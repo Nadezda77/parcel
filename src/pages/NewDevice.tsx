@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Container } from 'react-bootstrap';
 import { useForm } from "react-hook-form";
 import axios from 'axios';
-import { getToken } from '../utils/Common';
+import { getToken, removeUserSession } from '../utils/Common';
+import { useNavigate } from 'react-router-dom';
+
 
 interface ConnectivityPlan {
   ID: string;
@@ -28,6 +30,7 @@ interface NewDeviceData {
   connectivity: string;
   appServersRoutingProfile: {
     ID: string;
+    
   };
   networkSubscription: {
     ID: string;
@@ -35,8 +38,8 @@ interface NewDeviceData {
 }
 
 const NewDevice: React.FC = () => {
-  const { handleSubmit, formState: { isSubmitSuccessful, errors } } = useForm();
-
+  const { register, handleSubmit, formState: { isSubmitSuccessful, errors } } = useForm();
+const navigate = useNavigate();
   const token = getToken();
 
   const [name, setName] = useState('');
@@ -54,10 +57,18 @@ const NewDevice: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
+  const handleLogout = () => {
+   removeUserSession();
+    navigate('/login');
+  }
+
   const onSubmit = async () => {
     setLoading(true);
     setIsError(false);
 
+  
+
+  
     const data: NewDeviceData = {
       name,
       EUI,
@@ -88,7 +99,7 @@ const NewDevice: React.FC = () => {
 
       console.log(response.data);
 
-      // Reset form
+      //reset(); 
       setName('');
       setEUI('');
       setImsi('');
@@ -97,6 +108,7 @@ const NewDevice: React.FC = () => {
       setConnectivity('');
       setAppServersRoutingProfile('');
       setNetworkSubscription('');
+      navigate('/dashboard');
     } catch (error) {
       console.error(error);
       setIsError(true);
@@ -144,18 +156,31 @@ const NewDevice: React.FC = () => {
   }, [token]);
 
   return (
+<Container style={{ maxWidth: '600px' }}>
+ <div className="d-flex justify-content-end mt-3 mb-4">
+<Button variant="outline-danger" size="sm" onClick={handleLogout}  >Logout</Button><br /><br />
+   </div>
     <Form style={{ width: '22rem', margin: 'auto' }} onSubmit={handleSubmit(onSubmit)}>
-      {isSubmitSuccessful && <p className="text-success">Form submitted successfully.</p>}
-      {isError && <p className="text-danger">Form submission failed.</p>}
+      {isSubmitSuccessful && <div className="alert alert-success"> Device created successfully.</div>}
+      {isError && <div className="alert alert-danger">Failed to create device.</div>}
 
       <Form.Group className="mb-3">
         <Form.Label>Name</Form.Label>
-        <Form.Control value={name} onChange={(e) => setName(e.target.value)} required />
+        <Form.Control {...register('name', { required: 'Name is required' })} value={name} onChange={(e) => setName(e.target.value)} isInvalid={!!errors.name} required />
+      
       </Form.Group>
 
       <Form.Group className="mb-3">
         <Form.Label>EUI</Form.Label>
-        <Form.Control value={EUI} onChange={(e) => setEUI(e.target.value)} required />
+        <Form.Control 
+         {...register('EUI', {
+      required: 'EUI is required',
+      pattern: {
+        value: /^[0-9A-Fa-f]{14}$/,
+        message: 'EUI must be a 14-digit string'
+      }
+    })}
+        value={EUI} onChange={(e) => setEUI(e.target.value)} required />
       </Form.Group>
 
       <Form.Group className="mb-3">
@@ -198,12 +223,16 @@ const NewDevice: React.FC = () => {
             <option key={item.ID} value={item.ID}>{item.commercialName}</option>
           ))}
         </Form.Select>
+
+        
       </Form.Group>
 
-      <Button variant="primary" type="submit" disabled={loading}>
-        {loading ? 'Submitting...' : 'Create Device'}
+      <Button variant="primary" type="submit" disabled={loading} className="w-100">
+        {loading ? 'Creating Device...' : 'Create Device'}
       </Button>
     </Form>
+    </Container>
+    
   );
 };
 
