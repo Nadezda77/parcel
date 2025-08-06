@@ -42,4 +42,16 @@ export const removeUserSession = () => {
       }
 
 
-  
+  export const isTokenExpired = (): boolean => {
+  const expiresIn = sessionStorage.getItem('expires_in');
+  if (!expiresIn) return true;
+
+  const storedAt = sessionStorage.getItem('stored_at');
+  if (!storedAt) return true;
+
+  const now = Date.now();
+  const expiryTime = parseInt(storedAt) + parseInt(expiresIn) * 1000;
+
+  return now > expiryTime;
+};
+sessionStorage.setItem('stored_at', Date.now().toString());

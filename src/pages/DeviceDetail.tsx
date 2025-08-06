@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams,  } from 'react-router-dom';
-import { getToken, removeUserSession} from '../utils/Common';
+import { getToken, removeUserSession, isTokenExpired} from '../utils/Common';
 import { Container, Button, Table, Card } from 'react-bootstrap';
 
 import { useNavigate } from 'react-router-dom';
@@ -68,10 +68,11 @@ const exportToCSV = (data: any[], filename = 'device_history.csv') => {
         const token = getToken();
         const ref = `e${deviceEUI}`;
         
-        if (!token) {
-          setError('User not authenticated. Please log in again.');
-          return;
-        }
+        if (!token || isTokenExpired()) {
+  removeUserSession();
+  navigate('/login'); 
+  return;
+}
 
         const response = await fetch(
           `https://iot.mts.rs/thingpark/wireless/rest/subscriptions/mine/devices/${ref}`,
