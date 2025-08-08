@@ -7,11 +7,14 @@
     "start": "parcel src/index.html",
     "build": "parcel build src/index.html"
   },
+  "alias": {
+    "axios": "./node_modules/axios/index.js"
+  },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@hookform/resolvers": "^5.0.1",
     "@parcel/reporter-dev-server": "^2.14.4",
-    "axios": "^1.9.0",
+    "axios": "^1.11.0",
     "bootstrap": "^5.3.6",
     "cors": "^2.8.5",
     "express": "^5.1.0",

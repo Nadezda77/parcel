@@ -47,7 +47,7 @@ const [activeFilters, setActiveFilters] = useState<{
   nwAddress?: string;
 }>({});
 
-  const fetchDevices = async (filters?: {
+   const fetchDevices = async (filters?: {
   name?: string;
   EUI?: string;
   nwAddress?: string;

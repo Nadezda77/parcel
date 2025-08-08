@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams,  } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getToken, removeUserSession, isTokenExpired} from '../utils/Common';
 import { Container, Button, Table, Card } from 'react-bootstrap';
-
-import { useNavigate } from 'react-router-dom';
-
-
-
-
+import axios from 'axios';
 
 const DeviceDetail = () => {
   const { deviceEUI } = useParams<{ deviceEUI: string }>();
@@ -18,6 +13,12 @@ const DeviceDetail = () => {
   const [historyError, setHistoryError] = useState('');
 const navigate = useNavigate();
 
+const handleSessionExpiry = (error: any) => {
+  if (axios.isAxiosError(error) && error.response?.status === 401) {
+    removeUserSession();
+    navigate('/'); // or '/' depending on your route
+  }
+};
 
 const [currentPage, setCurrentPage] = useState(1);
 const itemsPerPage = 100;
@@ -58,78 +59,94 @@ const exportToCSV = (data: any[], filename = 'device_history.csv') => {
     document.body.removeChild(link);
   };
 
-     
   useEffect(() => {
-    if (!deviceEUI) return;
+  if (!deviceEUI) return;
 
-    const fetchDeviceDetail = async () => {
-      try {
-        setLoading(true);
-        const token = getToken();
-        const ref = `e${deviceEUI}`;
-        
-        if (!token || isTokenExpired()) {
-  removeUserSession();
-  navigate('/login'); 
-  return;
-}
+  const fetchDeviceHistory = async (_subscriptionId: string, ref: string, token: string) => {
+    try {
+      const url = `https://iot.mts.rs/thingpark/wireless/rest/subscriptions/mine/devices/${ref}/frames?duration=P10D`;
+      console.log("Fetching history from URL:", url);
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
 
-        const response = await fetch(
-          `https://iot.mts.rs/thingpark/wireless/rest/subscriptions/mine/devices/${ref}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: 'application/json',
-            },
-          }
-        );
-
-        if (!response.ok) {
-          const text = await response.text();
-          throw new Error(`HTTP ${response.status}: ${text}`);
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Session expired
+          handleSessionExpiry({ response });
+          return;
         }
-
-        const data = await response.json();
-        setDevice(data);
-
-
-fetchDeviceHistory('mine', ref, token);
-
-      } catch (error: any) {
-        console.error("Failed to fetch device detail:", error);
-        setError(error.message || 'Failed to fetch device details');
-      } finally {
-        setLoading(false);
+        throw new Error(`History fetch failed: ${response.status}`);
       }
-    };
 
-    const fetchDeviceHistory = async (_subscriptionId: string, ref: string, token: string) => {
-      try {
-        const url = `https://iot.mts.rs/thingpark/wireless/rest/subscriptions/mine/devices/${ref}/frames?duration=P10D`;
-        console.log("Fetching history from URL:", url);
-        const response = await fetch(url, {
+      const data = await response.json();
+      console.log("History response data:", data);
+      const entries = data.frames || data.briefs || [];
+      setHistory(entries);
+      setHistoryError('');
+    } catch (error: any) {
+      console.error("Failed to fetch device history:", error);
+      if (axios.isAxiosError(error)) {
+        handleSessionExpiry(error);
+      }
+      setHistoryError(error.message || 'Failed to fetch device history');
+    }
+  };
+
+  const fetchDeviceDetail = async () => {
+    try {
+      setLoading(true);
+      const token = getToken();
+      const ref = `e${deviceEUI}`;
+
+      if (!token || isTokenExpired()) {
+        removeUserSession();
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch(
+        `https://iot.mts.rs/thingpark/wireless/rest/subscriptions/mine/devices/${ref}`,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: 'application/json',
           },
-        });
-
-        if (!response.ok) {
-          throw new Error(`History fetch failed: ${response.status}`);
         }
+      );
 
-        const data = await response.json();
-        console.log("History response data:", data);
-        const entries = data.frames || data.briefs || [];
-        setHistory(entries);
-      } catch (err: any) {
-        console.error("Failed to fetch device history:", err);
-        setHistoryError(err.message);
+      if (!response.ok) {
+        if (response.status === 401) {
+          handleSessionExpiry({ response });
+          return;
+        }
+        const text = await response.text();
+        throw new Error(`HTTP ${response.status}: ${text}`);
       }
-    };
 
-    fetchDeviceDetail();
-  }, [deviceEUI]);
+      const data = await response.json();
+      setDevice(data);
+      setError('');
+
+      // Fetch history only after device is set
+      fetchDeviceHistory('mine', ref, token);
+    } catch (error: any) {
+      console.error("Failed to fetch device detail:", error);
+      if (axios.isAxiosError(error)) {
+        handleSessionExpiry(error);
+      }
+      setError(error.message || 'Failed to fetch device details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDeviceDetail();
+}, [deviceEUI]);   
+
 
   const formatUTC = (timestamp: number | null | undefined) => {
     if (!timestamp) return '-';
@@ -254,4 +271,5 @@ fetchDeviceHistory('mine', ref, token);
   );
 };
 
+console.log(require('axios'));
 export default DeviceDetail;

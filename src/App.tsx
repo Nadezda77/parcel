@@ -31,7 +31,8 @@ function App() {
     }
 
     axios.get(`http://localhost:1234/verifyToken?token=${token}`).then(response => {
-      setUserSession(response.data.access_token, response.data.expires_in, response.data.token_type, response.data.refresh_expires_in, response.data.scope, response.data.not_before_policy);
+      setUserSession(response.data.access_token, response.data.expires_in, response.data.refresh_expires_in,  response.data.token_type, response.data.not_before_policy, response.data.scope
+      );
       setAuthLoading(false);
     }).catch(error => {
       removeUserSession();
@@ -49,7 +50,7 @@ function App() {
       <Navbar />
         <div className="container mt-4">
           <Routes>
-            <Route path="*" element={<NotFound />} />
+           
             <Route index element={<Home />} />
             <Route element={<PublicRoutes />}>
               <Route path="/login" element={<Login />} />
@@ -61,7 +62,7 @@ function App() {
               <Route path="/device/:deviceEUI" element={<DeviceDetail />} />
            </Route>
 
-
+ <Route path="*" element={<NotFound />} />
           </Routes>
 </div>
           </BrowserRouter>
