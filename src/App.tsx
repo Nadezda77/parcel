@@ -27,6 +27,7 @@ function App() {
   useEffect(() => {
     const token = getToken();
     if (!token) {
+      setAuthLoading(false); 
       return;
     }
 
@@ -40,7 +41,7 @@ function App() {
     });
   }, []);
 
-  if (authLoading && getToken()) {
+  if (authLoading ) {
     return <div className="content">Checking Authentication...</div>
   }
 
@@ -68,4 +69,6 @@ function App() {
           </BrowserRouter>
   );
 }
+
+
 export {App};
