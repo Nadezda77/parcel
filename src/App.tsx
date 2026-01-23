@@ -18,28 +18,34 @@ import PublicRoutes from './utils/PublicRoute';
 
 import axios from 'axios';
 
-import { getToken, removeUserSession, setUserSession } from './utils/Common';
+import { getToken, removeUserSession, setUserSession, isTokenExpired, reAuthenticate  } from './utils/Common';
 
 function App() {
 
-  const [authLoading, setAuthLoading] = useState(true);
+  const [authLoading, setAuthLoading] = React.useState(true);
 
-  useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      setAuthLoading(false); 
-      return;
-    }
+React.useEffect(() => {
+    const checkAuth = async () => {
+      const token = getToken();
+      if (!token) {
+        setAuthLoading(false);
+        return;
+      }
 
-    axios.get(`http://localhost:1234/verifyToken?token=${token}`).then(response => {
-      setUserSession(response.data.access_token, response.data.expires_in, response.data.refresh_expires_in,  response.data.token_type, response.data.not_before_policy, response.data.scope
-      );
+      if (isTokenExpired()) {
+        const success = await reAuthenticate();
+        if (!success) {
+          removeUserSession();
+        }
+      }
       setAuthLoading(false);
-    }).catch(error => {
-      removeUserSession();
-      setAuthLoading(false);
-    });
+    };
+
+    checkAuth();
   }, []);
+
+
+
 
   if (authLoading ) {
     return <div className="content">Checking Authentication...</div>
@@ -70,5 +76,8 @@ function App() {
   );
 }
 
+
+console.log('Token:', getToken());
+console.log('Is token expired?', isTokenExpired());
 
 export {App};

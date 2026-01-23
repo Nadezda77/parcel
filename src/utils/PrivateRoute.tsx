@@ -1,17 +1,14 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { getToken, isTokenExpired } from './Common';
+import { getToken } from './Common';
 
 const PrivateRoute = () => {
   const token = getToken();
 
-   if (!token || (isTokenExpired && isTokenExpired())) {
-    return <Navigate to="/login" replace />;
-  }
+   console.log('PrivateRoute token:', token);
 
-  return <Outlet />;
+  // Only redirect if token is missing
+  return token ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
-
-console.log('PrivateRoute token:', getToken());
 export default PrivateRoute;

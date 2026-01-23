@@ -20,23 +20,13 @@ const useFormInput = (initialValue: string) => {
 };
 
 function Login() {
-  const history = useNavigate();
+  const navigate = useNavigate();
   const username = useFormInput('');
   const password = useFormInput('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Store refresh token timer
-  // const refreshTimer = useRef<NodeJS.Timeout | null>(null);
-
-  // const clearRefreshTimer = () => {
-  //   if (refreshTimer.current) {
-  //     clearTimeout(refreshTimer.current);
-  //     refreshTimer.current = null;
-  //   }
-  // };
-
-  // Login handler - get tokens from backend
+  
   const handleLogin =  () => {
     setError(null);
     setLoading(true);
@@ -57,19 +47,32 @@ function Login() {
         withCredentials: false,
       }).then(response => {
         setLoading(false);
-        setUserSession(response.data.access_token, response.data.expires_in, response.data.refresh_expires_in, response.data.token_type, response.data.scope, response.data.not_before_policy );
+        setUserSession(response.data.access_token, response.data.expires_in, response.data.refresh_expires_in, response.data.token_type, response.data.scope, username.value,
+  password.value);
+  
 
 
-        history('/dashboard');
-
+        navigate('/dashboard', { replace: true }); 
       }).catch(error => {
-        setLoading(false);  
-      });
+  setLoading(false);
+  if (error.response) {
+    console.error('Login failed:', error.response.data);
+    setError(`Login failed: ${error.response.status} - ${error.response.data.error_description || error.response.data.error}`);
+  } else {
+    console.error('Login failed:', error);
+    setError('Login failed. Network error or CORS issue.');
+  }
+});
   };
 
 
   return (
-    <form>
+     <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleLogin();
+      }}
+    >
       <h2>Login</h2>
 
       <div>
@@ -89,9 +92,9 @@ function Login() {
         </>
       )}
       <br />
-       <input type="button"
-        value={loading ? 'Loading...' : 'Login'} onClick={handleLogin}
-        disabled={loading} />
+        <button type="submit" disabled={loading}>
+        {loading ? 'Loading...' : 'Login'}
+      </button>
       <br />
     </form>
   );
