@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getToken, removeUserSession, isTokenExpired} from '../utils/Common';
+import { getAccessToken, isTokenExpired, removeUserSession } from '../utils/Common';
 import { Container, Button, Table, Card } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -99,7 +99,7 @@ const exportToCSV = (data: any[], filename = 'device_history.csv') => {
   const fetchDeviceDetail = async () => {
     try {
       setLoading(true);
-      const token = getToken();
+      const token = getAccessToken();
       const ref = `e${deviceEUI}`;
 
       if (!token || isTokenExpired()) {

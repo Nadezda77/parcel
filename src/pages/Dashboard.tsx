@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Table, Button, Card, Spinner, Row, Col, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
-import { getToken, removeUserSession } from '../utils/Common';
+import { getAccessToken, isTokenExpired, removeUserSession } from '../utils/Common';
 import axios from 'axios';
+
+
 import { CSVLink } from 'react-csv';
 
 
@@ -25,7 +27,7 @@ const pageSize = 1000;
 
 function Dashboard() {
 const navigate = useNavigate();
-const token = getToken();
+const token = getAccessToken();
 const [rawDevices, setRawDevices] = useState<Device[]>([]);
 const [devices, setDevices] = useState<Device[]>([]);
 const [pageIndex, setPageIndex] = useState(0); // zero-based page index

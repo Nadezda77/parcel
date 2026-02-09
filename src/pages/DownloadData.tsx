@@ -6,7 +6,7 @@ import { Form, Button, Container, Table, InputGroup, Dropdown } from 'react-boot
 //import { useForm, SubmitHandler, Resolver, FieldValues } from "react-hook-form";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { getUser, getToken, removeUserSession, setUserSession } from '../utils/Common';
+import { getAccessToken, isTokenExpired, setUserSession, removeUserSession } from '../utils/Common';
 //import { CSVLink } from 'react-csv';
 
 
@@ -43,7 +43,7 @@ useEffect(() => {
 
   const fetchDeviceData = () => {
       setLoading(true);
-      const token = getToken();
+      const token = getAccessToken();
       
       axios.get('https://iot.mts.rs/thingpark/wireless/rest/subscriptions/mine/devices',
       {

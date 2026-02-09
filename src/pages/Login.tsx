@@ -3,7 +3,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
+//import api from '../api/axios';
+
 import { setUserSession } from '../utils/Common';
+
 
 const useFormInput = (initialValue: string) => {
   const [value, setValue] = useState(initialValue);
@@ -26,27 +29,40 @@ function Login() {
     setError(null);
     setLoading(true);
 
+    
+
     try {
       // 1️⃣ Authenticate via backend LDAP proxy
-      const loginResp = await axios.post('/api/login', {
-        username: username.value,
-        password: password.value,
-      });
+     const resp = await axios.post(
+  'http://localhost:4000/api/login',
+  {
+    username: username.value,
+    password: password.value,
+  },
+  { withCredentials: true }
+);
 
-      const { serviceAccount } = loginResp.data;
 
-      // Save service account in sessionStorage
-      setUserSession(serviceAccount);
 
-      // 2️⃣ Fetch TPW token from backend
-      const tokenResp = await axios.post('/api/token', { serviceAccount });
-      const { access_token, expires_in, refresh_expires_in, token_type, scope } = tokenResp.data;
+  
 
-      // Store TPW token in session
-      setUserSession(serviceAccount, access_token, expires_in, refresh_expires_in, token_type, scope);
+        console.log('LOGIN RESPONSE:', resp.data);
+
+              const  token  = resp.data;
+
+
+              
+      // 2️⃣ Store TP service account and token in session
+      setUserSession(
+        
+        token.access_token,
+        token.expires_in,
+         token.token_type
+        
+       
+      );
 
       setLoading(false);
-
       navigate('/dashboard', { replace: true });
     } catch (err: any) {
       setLoading(false);
@@ -54,7 +70,9 @@ function Login() {
       if (err.response) {
         console.error('Login failed:', err.response.data);
         setError(
-          `Login failed: ${err.response.status} - ${err.response.data.error || err.response.data.message}`
+          `Login failed: ${err.response.status} - ${
+            err.response.data.error || err.response.data.message
+          }`
         );
       } else {
         console.error('Login failed:', err);

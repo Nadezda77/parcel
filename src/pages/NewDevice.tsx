@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Button, Container } from 'react-bootstrap';
 import { useForm } from "react-hook-form";
 import axios from 'axios';
-import { getToken, removeUserSession } from '../utils/Common';
+import { getAccessToken, removeUserSession } from '../utils/Common';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -40,7 +40,7 @@ interface NewDeviceData {
 const NewDevice: React.FC = () => {
   const { register, handleSubmit, formState: { isSubmitSuccessful, errors } } = useForm();
 const navigate = useNavigate();
-  const token = getToken();
+  const token = getAccessToken();
 
   const [name, setName] = useState('');
   const [EUI, setEUI] = useState('');
