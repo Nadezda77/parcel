@@ -1,75 +1,42 @@
-import axios, {
-  AxiosHeaders,
-  InternalAxiosRequestConfig,
-} from 'axios';
-import {
-  getAccessToken,
-  isTokenExpired,
-  removeUserSession,
-  setUserSession,
-} from '../utils/Common';
+// src/api/axios.ts
+import axios, { AxiosHeaders, InternalAxiosRequestConfig } from 'axios';
+import { getAccessToken, isTokenExpired, setUserSession, removeUserSession } from '../utils/Common';
 
-/**
- * Axios instance
- */
 const api = axios.create({
   baseURL: 'http://localhost:4000',
-  withCredentials: true, // REQUIRED for session cookies
+  withCredentials: true, // session cookie
 });
 
-/**
- * Refresh TPW token via backend
- */
 async function refreshTPWToken(): Promise<string> {
-  try {
-    const resp = await api.post('/api/login/refresh');
+  const resp = await api.post('/api/login/refresh'); // backend reads req.session.tpServiceAccount
+  const token = resp.data;
 
-    const token = resp.data;
+  if (!token?.access_token) throw new Error('Invalid refresh response');
 
-    if (!token?.access_token) {
-      throw new Error('Invalid refresh response');
-    }
-
-    setUserSession(
-      token.access_token,
-      token.expires_in,
-      token.token_type
-    );
-
-    return token.access_token;
-  } catch (err) {
-    console.error('Token refresh failed', err);
-    removeUserSession();
-    window.location.href = '/login';
-    throw err;
-  }
+  setUserSession(token.access_token, token.expires_in, token.token_type);
+  return token.access_token;
 }
 
-/**
- * Request interceptor
- */
-api.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    let token = getAccessToken();
+api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  const url = config.url || '';
 
-    if (!token || isTokenExpired()) {
-      token = await refreshTPWToken();
-    }
+  // allow login + refresh calls without attaching Bearer (avoid loops)
+  if (url.startsWith('/api/login')) return config;
 
-    if (!config.headers) config.headers = new AxiosHeaders();
+  let token = getAccessToken();
+  if (!token || isTokenExpired()) {
+    token = await refreshTPWToken();
+  }
 
-    config.headers.set('Authorization', `Bearer ${token}`);
+  if (!config.headers) config.headers = new AxiosHeaders();
+  config.headers.set('Authorization', `Bearer ${token}`);
+  config.headers.set('Accept', 'application/json');
 
-    return config;
-  },
- 
-);
+  return config;
+});
 
-/**
- * Axios response interceptor
- */
 api.interceptors.response.use(
-  (resp) => resp,
+  (r) => r,
   (error) => {
     if (error.response?.status === 401) {
       removeUserSession();

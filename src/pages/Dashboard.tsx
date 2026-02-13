@@ -4,6 +4,7 @@ import { Container, Table, Button, Card, Spinner, Row, Col, Form } from 'react-b
 import { useNavigate } from 'react-router';
 import { getAccessToken, isTokenExpired, removeUserSession } from '../utils/Common';
 import axios from 'axios';
+import tpApi from '../api/tpApi';
 
 
 import { CSVLink } from 'react-csv';
@@ -57,21 +58,15 @@ const [activeFilters, setActiveFilters] = useState<{
 }) => {
     setLoading(true);
     try {
-      const res = await axios.get('https://iot.mts.rs/thingpark/wireless/rest/subscriptions/mine/devices', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-        params: {
-          pageIndex: filters?.pageIndexOverride ?? pageIndex,
-          pageSize,
-          connectivity: 'CELLULAR',
-          name: filters?.name || undefined,
-          devEUI: filters?.EUI || undefined,
-
-        //nwAddress: filters?.nwAddress || undefined,
-        },
-      });
+     const res = await tpApi.get('/subscriptions/mine/devices', {
+  params: {
+    pageIndex: filters?.pageIndexOverride ?? pageIndex,
+    pageSize,
+    connectivity: 'CELLULAR',
+    name: filters?.name || undefined,
+    devEUI: filters?.EUI || undefined,
+  },
+});
 
          let data: Device [] = res.data.briefs || [];
          setRawDevices(data);
@@ -176,14 +171,13 @@ const handleDelete = async (deviceId: string) => {
   if (!window.confirm('Are you sure you want to delete this device?')) return;
 
   try {
-    await axios.delete(
-      `https://iot.mts.rs/thingpark/wireless/rest/subscriptions/mine/devices/e${deviceId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // use your token variable
-          'Content-Type': 'application/json'
-        }
-      }
+   await tpApi.delete(`/subscriptions/mine/devices/e${deviceId}`,
+      // {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`, // use your token variable
+      //     'Content-Type': 'application/json'
+      //   }
+      // }
     );
 
     // Remove device from state
