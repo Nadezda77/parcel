@@ -111,7 +111,7 @@ if (typeof msg === 'string' && msg.includes('IMSI number does not match any unal
 
 setApiError(msg);
   // 🔥 vrlo bitno: nema success poruke kad pukne
-  setApiError(actilityMsg);
+
 } finally {
   setLoading(false);
 }
@@ -169,65 +169,89 @@ setApiError(msg);
        {apiSuccess && <div className="alert alert-success">{apiSuccess}</div>}
 {apiError && <div className="alert alert-danger">{apiError}</div>}
         <Form.Group className="mb-3">
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            {...register('name', { required: 'Name is required' })}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            isInvalid={!!errors.name}
-            required
-          />
+         <Form.Label htmlFor="nameId">Name</Form.Label>
+<Form.Control
+  id="nameId"
+  aria-label="name"
+  {...register('name', { required: 'Name is required' })}
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  isInvalid={!!errors.name}
+  required
+/>
         </Form.Group>
 
 
 
        <Form.Group className="mb-3">
-  <Form.Label>EUI</Form.Label>
-  <Form.Control
-    {...register('EUI', {
-      required: 'EUI is required',
-      pattern: {
-        value: /^\d{15}$/,
-        message: 'EUI must be exactly 15 digits (numbers only)',
-      },
-    })}
-    value={EUI}
-    onChange={(e) => setEUI(e.target.value)}
-    isInvalid={!!errors.EUI}
-  />
+  <Form.Label htmlFor="euiId">EUI</Form.Label>
+<Form.Control
+  id="euiId"
+  aria-label="eui"
+  {...register('EUI', {
+    required: 'EUI is required',
+    pattern: {
+      value: /^\d{15}$/,
+      message: 'EUI must be exactly 15 digits (numbers only)',
+    },
+  })}
+  value={EUI}
+  onChange={(e) => setEUI(e.target.value)}
+  isInvalid={!!errors.EUI}
+/>
   <Form.Control.Feedback type="invalid">
     {(errors as any)?.EUI?.message}
   </Form.Control.Feedback>
 </Form.Group>
 
  <Form.Group className="mb-3">
-        <Form.Label>IMSI</Form.Label>
-        <Form.Control value={imsi} onChange={(e) => setImsi(e.target.value)} required />
+       <Form.Label htmlFor="imsiId">IMSI</Form.Label>
+<Form.Control
+  id="imsiId"
+  aria-label="imsi"
+  value={imsi}
+  onChange={(e) => setImsi(e.target.value)}
+  required
+/>
       </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Device Profile ID</Form.Label>
-          <Form.Select value={model} onChange={(e) => setModel(e.target.value)} required>
+        <Form.Label htmlFor="deviceModel">Device Profile ID</Form.Label>
+<Form.Select
+  id="deviceModel"
+  aria-label="Device Profile ID"
+  value={model}
+  onChange={(e) => setModel(e.target.value)}
+  required
+>
             <option value="">Select one...</option>
             <option value="CUSTOM/Cellular_Generic">default</option>
           </Form.Select>
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Connectivity</Form.Label>
-          <Form.Select value={connectivity} onChange={(e) => setConnectivity(e.target.value)} required>
+      <Form.Label htmlFor="connectivityId">Connectivity</Form.Label>
+<Form.Select
+  id="connectivityId"
+  aria-label="Connectivity"
+  value={connectivity}
+  onChange={(e) => setConnectivity(e.target.value)}
+  required
+>
             <option value="">Select one...</option>
             <option value="CELLULAR">CELLULAR</option>
           </Form.Select>
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Routing Profile ID</Form.Label>
-          <Form.Select
-            value={appServersRoutingProfile}
-            onChange={(e) => setAppServersRoutingProfile(e.target.value)}
-            required
-          >
+          <Form.Label htmlFor="routingProfileId">Routing Profile ID</Form.Label>
+<Form.Select
+  id="routingProfileId"
+   aria-label="Routing Profile ID"
+  value={appServersRoutingProfile}
+  onChange={(e) => setAppServersRoutingProfile(e.target.value)}
+  required
+>
             <option value="">Select one...</option>
             {rprofIds.map((item) => (
               <option key={item.ID} value={item.ID}>
@@ -238,12 +262,15 @@ setApiError(msg);
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Connectivity Plan ID</Form.Label>
-          <Form.Select
-            value={networkSubscription}
-            onChange={(e) => setNetworkSubscription(e.target.value)}
-            required
-          >
+          <Form.Label htmlFor="connectivityPlanId">Connectivity Plan ID</Form.Label>
+        <Form.Label htmlFor="connectivityPlanId">Connectivity Plan ID</Form.Label>
+<Form.Select
+  id="connectivityPlanId"
+  aria-label="Connectivity Plan ID"
+  value={networkSubscription}
+  onChange={(e) => setNetworkSubscription(e.target.value)}
+  required
+>
             <option value="">Select one...</option>
             {cPlanIds.map((item) => (
               <option key={item.ID} value={item.ID}>
