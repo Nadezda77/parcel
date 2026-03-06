@@ -3,7 +3,7 @@ import axios, { AxiosHeaders, InternalAxiosRequestConfig } from 'axios';
 import { getAccessToken, isTokenExpired, setUserSession, removeUserSession } from '../utils/Common';
 
 const api = axios.create({
-  baseURL: 'http://localhost:4000',
+  baseURL: '',
   withCredentials: true, // session cookie
 });
 
