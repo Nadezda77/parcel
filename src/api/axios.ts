@@ -2,9 +2,13 @@
 import axios, { AxiosHeaders, InternalAxiosRequestConfig } from 'axios';
 import { getAccessToken, isTokenExpired, setUserSession, removeUserSession } from '../utils/Common';
 
+const isLocalDevHost =
+  typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
 const api = axios.create({
-  baseURL: 'http://localhost:4000',
-  withCredentials: true, // session cookie
+  // Local dev: backend radi na :4000. Produkcija: isti origin + Nginx /api proxy.
+  baseURL: isLocalDevHost ? 'http://localhost:4000' : '',
+  withCredentials: true,
 });
 
 async function refreshTPWToken(): Promise<string> {
