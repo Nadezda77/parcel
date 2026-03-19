@@ -2,10 +2,17 @@
 import axios, { AxiosHeaders, InternalAxiosRequestConfig } from 'axios';
 import { getAccessToken, isTokenExpired, setUserSession, removeUserSession } from '../utils/Common';
 
+const isLocalDevHost =
+  typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+
 const api = axios.create({
-  baseURL: '',
+
+  baseURL: isLocalDevHost ? 'http://localhost:4000' : '',
   withCredentials: true, // session cookie
 });
+
+
 
 async function refreshTPWToken(): Promise<string> {
   const resp = await api.post('/api/login/refresh'); // backend reads req.session.tpServiceAccount
