@@ -8,7 +8,7 @@ const isLocalDevHost =
 
 const api = axios.create({
 
-  baseURL: isLocalDevHost ? 'http://localhost:4000' : '',
+  baseURL:  'http://localhost:4000' ,
   withCredentials: true, // session cookie
 });
 
