@@ -28,6 +28,9 @@ const pageSize = 1000;
 
 function Dashboard() {
 const navigate = useNavigate();
+const goBack = () => navigate(-1);
+const goForward = () => navigate(1);
+
 const token = getAccessToken();
 const [rawDevices, setRawDevices] = useState<Device[]>([]);
 const [devices, setDevices] = useState<Device[]>([]);
@@ -196,6 +199,17 @@ const handleDelete = async (deviceId: string) => {
     Logout
   </Button>
 </div>
+
+ <div className="d-flex gap-2">
+          <Button variant="outline-secondary" size="sm" onClick={goBack}>
+        ← Back
+          </Button>
+          
+          <Button variant="outline-secondary" size="sm" onClick={goForward}>
+                Forward →
+              </Button>
+
+        </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
 

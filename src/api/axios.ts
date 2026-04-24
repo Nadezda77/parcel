@@ -27,12 +27,31 @@ async function refreshTPWToken(): Promise<string> {
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   const url = config.url || '';
 
+
+const fullUrl = `${config.baseURL || ''}${url}`;
+  console.log('[REQ]', config.method?.toUpperCase(), fullUrl);
+
+
+
   // allow login + refresh calls without attaching Bearer (avoid loops)
   if (url.startsWith('/api/login')) return config;
 
   let token = getAccessToken();
   if (!token || isTokenExpired()) {
+
+
+ try {
     token = await refreshTPWToken();
+  } catch (e) {
+    console.warn('[REFRESH FAILED] forcing re-login');
+    removeUserSession();
+    // po želji: ovde redirect, ali sada bar znaš da je refresh fail
+    window.location.href = '/login';
+    throw e;
+  }
+
+
+    //token = await refreshTPWToken();
   }
 
   if (!config.headers) config.headers = new AxiosHeaders();
@@ -45,12 +64,31 @@ api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
 api.interceptors.response.use(
   (r) => r,
   (error) => {
-    if (error.response?.status === 401) {
+
+
+const status = error.response?.status;
+    const url = error.config?.url || '';
+
+    
+ // ✅ NE redirectuj za login rute (login, mfa, refresh),
+    // da UI prikaže poruku (npr. Invalid OTP)
+    if (status === 401 && !url.startsWith('/api/login')) {
       removeUserSession();
       window.location.href = '/login';
     }
+
+
     return Promise.reject(error);
   }
 );
+
+
+//     if (error.response?.status === 401) {
+//       removeUserSession();
+//       window.location.href = '/login';
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 export default api;

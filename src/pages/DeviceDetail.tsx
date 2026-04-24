@@ -32,6 +32,10 @@ const DeviceDetail: React.FC = () => {
   const { deviceEUI } = useParams<{ deviceEUI: string }>();
   const navigate = useNavigate();
 
+const goBack = () => navigate(-1);
+const goForward = () => navigate(1);
+
+
   const [device, setDevice] = useState<Device | null>(null);
   const [history, setHistory] = useState<FrameEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,17 +51,30 @@ const DeviceDetail: React.FC = () => {
     navigate('/login');
   };
 
-  const formatUTC = (timestamp: number | null | undefined) => {
-    if (!timestamp) return '-';
-    return new Date(timestamp).toUTCString();
-  };
+  
+const formatLocal = (timestamp: number | null | undefined) => {
+  if (timestamp == null) return '-';
+  const d = new Date(timestamp);
+  if (Number.isNaN(d.getTime())) return '-';
+
+  return new Intl.DateTimeFormat('sr-RS', {
+    timeZone: 'Europe/Belgrade',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(d);
+};
+
 
   const exportToCSV = (data: FrameEntry[], filename = 'device_history.csv') => {
     if (!data || data.length === 0) return;
 
     const header = ['Timestamp', 'Size Up (bytes)', 'Size Down (bytes)', 'Duration (s)', 'Cell ID'];
     const rows = data.map((entry) => [
-      entry.timestamp ? new Date(entry.timestamp).toUTCString() : '-',
+      entry.timestamp ? new Date(entry.timestamp).toLocaleString('sr-RS') : '-',
       entry.sizeUp ?? '-',
       entry.sizeDown ?? '-',
       entry.duration ?? '-',
@@ -149,6 +166,8 @@ const DeviceDetail: React.FC = () => {
             Logout
           </Button>
         </div>
+
+        
         <div className="alert alert-danger">{error}</div>
       </Container>
     );
@@ -158,9 +177,12 @@ const DeviceDetail: React.FC = () => {
     return (
       <Container className="mt-4">
         <div className="d-flex justify-content-end mb-3">
+
           <Button variant="outline-danger" size="sm" onClick={handleLogout}>
             Logout
           </Button>
+
+          
         </div>
         <div>No device found.</div>
       </Container>
@@ -175,6 +197,18 @@ const DeviceDetail: React.FC = () => {
         </Button>
       </div>
 
+       <div className="d-flex gap-2">
+          <Button variant="outline-secondary" size="sm" onClick={goBack}>
+        ← Back
+          </Button>
+          
+          <Button variant="outline-secondary" size="sm" onClick={goForward}>
+                Forward →
+              </Button>
+        </div>
+
+
+
       <h3>Device Detail for IMEI {device.EUI || deviceEUI}</h3>
 
       <Table bordered striped className="mt-3">
@@ -184,8 +218,8 @@ const DeviceDetail: React.FC = () => {
             <th>IMEI</th>
             <th>IMSI</th>
             <th>IP Address</th>
-            <th>First Session creation (UTC)</th>
-            <th>Last Session creation (UTC)</th>
+            <th>First Session creation</th>
+            <th>Last Session creation</th>
             <th>Last Microflow Timestamp</th>
           </tr>
         </thead>
@@ -195,9 +229,9 @@ const DeviceDetail: React.FC = () => {
             <td>{device.EUI || '-'}</td>
             <td>{device.imsi || '-'}</td>
             <td>{device.nwAddress || '-'}</td>
-            <td>{formatUTC(device.firstUpTimestamp)}</td>
-            <td>{formatUTC(device.lastUpTimestamp)}</td>
-            <td>{formatUTC(device.lastMicroflowTimestamp)}</td>
+            <td>{formatLocal(device.firstUpTimestamp)}</td>
+            <td>{formatLocal(device.lastUpTimestamp)}</td>
+            <td>{formatLocal(device.lastMicroflowTimestamp)}</td>
           </tr>
         </tbody>
       </Table>
@@ -235,7 +269,7 @@ const DeviceDetail: React.FC = () => {
           <Table bordered hover className="mt-3">
             <thead className="table-light">
               <tr>
-                <th>Timestamp</th>
+                <th>Timestamp (RS)</th>
                 <th>Size Up (bytes)</th>
                 <th>Size Down (bytes)</th>
                 <th>Duration (s)</th>
@@ -245,7 +279,7 @@ const DeviceDetail: React.FC = () => {
             <tbody>
               {paginatedHistory.map((entry, idx) => (
                 <tr key={idx}>
-                  <td>{formatUTC(entry.timestamp)}</td>
+                  <td>{formatLocal(entry.timestamp)}</td>
                   <td>{entry.sizeUp ?? '-'}</td>
                   <td>{entry.sizeDown ?? '-'}</td>
                   <td>{entry.duration ?? '-'}</td>

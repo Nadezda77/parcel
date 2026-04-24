@@ -35,6 +35,9 @@ const NewDevice: React.FC = () => {
   const { register, handleSubmit, formState: { isSubmitSuccessful, errors } } = useForm();
   const navigate = useNavigate();
 
+  const goBack = () => navigate(-1);
+const goForward = () => navigate(1);
+
   const [name, setName] = useState('');
   const [EUI, setEUI] = useState('');
   const [imsi, setImsi] = useState('');
@@ -164,6 +167,16 @@ setApiError(msg);
           Logout
         </Button>
       </div>
+
+        <div className="d-flex gap-2">
+                <Button variant="outline-secondary" size="sm" onClick={goBack}>
+              ← Back
+                </Button>
+                
+                <Button variant="outline-secondary" size="sm" onClick={goForward}>
+                      Forward →
+                    </Button>
+              </div>
 
       <Form style={{ width: '22rem', margin: 'auto' }} onSubmit={handleSubmit(onSubmit)}>
        {apiSuccess && <div className="alert alert-success">{apiSuccess}</div>}

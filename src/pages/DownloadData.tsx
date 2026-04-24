@@ -18,6 +18,9 @@ interface Device {
 const ExportCSV: React.FC = () => {
   const navigate = useNavigate();
 
+  const goBack = () => navigate(-1);
+const goForward = () => navigate(1);
+
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -80,6 +83,16 @@ const ExportCSV: React.FC = () => {
           Logout
         </Button>
       </div>
+
+        <div className="d-flex gap-2">
+                <Button variant="outline-secondary" size="sm" onClick={goBack}>
+              ← Back
+                </Button>
+                
+                <Button variant="outline-secondary" size="sm" onClick={goForward}>
+                      Forward →
+                    </Button>
+              </div>
 
       <h4>Export devices</h4>
 
