@@ -5,7 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Container, Button, Table, Spinner } from 'react-bootstrap';
 
-import tpApi from '../api/tpApi';
+//import tpApi from '../api/tpApi';
+import api from '../api/axios';
 import { removeUserSession } from '../utils/Common';
 
 type FrameEntry = {
@@ -107,7 +108,7 @@ const formatLocal = (timestamp: number | null | undefined) => {
       setError('');
       try {
         // ✅ tpApi will attach Bearer token AND refresh if needed
-        const resp = await tpApi.get(`/subscriptions/mine/devices/${ref}`);
+        const resp = await api.get(`/tp/devices/${ref}`);
         setDevice(resp.data);
       } catch (err: any) {
         if (err?.response?.status === 401) {
@@ -126,7 +127,7 @@ const formatLocal = (timestamp: number | null | undefined) => {
       setHistoryError('');
       try {
         // ✅ duration=P10D as you had
-        const resp = await tpApi.get(`/subscriptions/mine/devices/${ref}/frames`, {
+        const resp = await api.get(`/tp/devices/${ref}/frames`, {
           params: { duration: 'P10D' },
         });
 

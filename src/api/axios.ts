@@ -6,16 +6,17 @@ const isLocalDevHost =
   typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
 
-const api = axios.create({
 
-  baseURL:  'http://localhost:4000' ,
-  withCredentials: true, // session cookie
+const api = axios.create({
+  baseURL: isLocalDevHost ? 'http://localhost:4000/api' : '/api',
+  withCredentials: true,
 });
 
 
 
+
 async function refreshTPWToken(): Promise<string> {
-  const resp = await api.post('/api/login/refresh'); // backend reads req.session.tpServiceAccount
+  const resp = await api.post('/login/refresh'); // backend reads req.session.tpServiceAccount
   const token = resp.data;
 
   if (!token?.access_token) throw new Error('Invalid refresh response');
@@ -34,7 +35,7 @@ const fullUrl = `${config.baseURL || ''}${url}`;
 
 
   // allow login + refresh calls without attaching Bearer (avoid loops)
-  if (url.startsWith('/api/login')) return config;
+  if (url.startsWith('/login')) return config;
 
   let token = getAccessToken();
   if (!token || isTokenExpired()) {
@@ -72,7 +73,7 @@ const status = error.response?.status;
     
  // ✅ NE redirectuj za login rute (login, mfa, refresh),
     // da UI prikaže poruku (npr. Invalid OTP)
-    if (status === 401 && !url.startsWith('/api/login')) {
+    if (status === 401 && !url.startsWith('/login')) {
       removeUserSession();
       window.location.href = '/login';
     }

@@ -6,7 +6,9 @@ import { removeUserSession } from '../utils/Common';
 import { useNavigate } from 'react-router-dom';
 
 // ✅ koristi axios instance sa interceptorom (refresh)
-import tpApi from '../api/tpApi'; 
+//import tpApi from '../api/tpApi';
+
+import api from '../api/axios';
 
 interface ConnectivityPlan {
   ID: string;
@@ -77,7 +79,7 @@ const [apiSuccess, setApiSuccess] = useState<string | null>(null);
 
     try {
       // ✅ NEMA više domena + nema headers.Authorization
-      await tpApi.post('/subscriptions/mine/devices', data);
+      await api.post('/tp/devices', data);
 
   setApiSuccess('Device created successfully.');
 
@@ -121,8 +123,8 @@ setApiError(msg);
   };
 
   useEffect(() => {
-    tpApi
-      .get('/subscriptions/mine/networkSubscriptions', {
+    api
+      .get('/tp/networkSubscriptions', {
         params: { connectivity: 'CELLULAR' },
       })
       .then((res) => {
@@ -141,8 +143,8 @@ setApiError(msg);
   }, []);
 
   useEffect(() => {
-    tpApi
-      .get('/subscriptions/mine/appServersRoutingProfiles', {
+    api
+      .get('/tp/appServersRoutingProfiles', {
         params: { type: 'CELLULAR' },
       })
       .then((res) => {
@@ -275,7 +277,7 @@ setApiError(msg);
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label htmlFor="connectivityPlanId">Connectivity Plan ID</Form.Label>
+    
         <Form.Label htmlFor="connectivityPlanId">Connectivity Plan ID</Form.Label>
 <Form.Select
   id="connectivityPlanId"

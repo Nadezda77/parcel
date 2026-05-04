@@ -31,7 +31,7 @@ function Login() {
 
     try {
       const resp = await api.post(
-        '/api/login',
+        '/login',
         { username: username.value, password: password.value },
         { withCredentials: true }
       );
@@ -69,7 +69,7 @@ const handleVerifyOtp = async () => {
 
     try {
       const resp = await api.post(
-        '/api/login/mfa',
+        '/login/mfa',
         { code: otp.value },
         { withCredentials: true }
       );
