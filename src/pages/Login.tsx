@@ -97,6 +97,9 @@ const handleVerifyOtp = async () => {
      
  {!mfaRequired ? (
         <>
+
+        <p>Prijavite se kako biste pristupili NB‑IoT platformi Telekom Srbija i upravljali svojim IoT uređajima, konektivnošću i podacima.
+Za pristup su potrebni važeći korisnički kredencijali dodeljeni od strane administratora sistema.</p>
           <div>
             Username<br />
             <input id="username" type="text" {...username} autoComplete="username" />
